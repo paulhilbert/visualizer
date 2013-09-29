@@ -23,6 +23,7 @@ and add "$GRAPHENE_ROOT/bin" to your PATH.
 An example scenario then looks like:
 
 % cd $GRAPHENE_VIS
+
 % createVisualizer VisualizerName ./
 
 This creates a new visualizer named "VisualizerName", builds it and symlinks
