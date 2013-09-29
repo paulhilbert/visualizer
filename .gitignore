@@ -5,9 +5,14 @@
 
 # Compiled Dynamic libraries
 *.so
+*.os
 *.dylib
 
 # Compiled Static libraries
 *.lai
 *.la
 *.a
+
+# misc
+*.dblite
+*.swp

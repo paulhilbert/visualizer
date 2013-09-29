@@ -13,7 +13,7 @@ Rendering::~Rendering() {
 
 void Rendering::init() {
 	addProperties();
-	m_vectors = Rendered::Vectors::Ptr(new Rendered::Vectors(rgbaWhite()));
+	m_lines = Rendered::Lines::Ptr(new Rendered::Lines(rgbaWhite()));
 	std::vector<Eigen::Vector3f> points;
 	points.push_back(Eigen::Vector3f(0.f, 0.f, 0.f));
 	points.push_back(Eigen::Vector3f(1.f, 0.f, 0.f));
@@ -21,12 +21,12 @@ void Rendering::init() {
 	points.push_back(Eigen::Vector3f(0.f, 1.f, 0.f));
 	points.push_back(Eigen::Vector3f(0.f, 0.f, 0.f));
 	points.push_back(Eigen::Vector3f(0.f, 0.f, 1.f));
-	m_vectors->set(points);
+	m_lines->set(points);
 	colorize();
 }
 
 void Rendering::render() {
-	m_vectors->render(fw()->transforms()->modelview, fw()->transforms()->projection);
+	m_lines->render(fw()->transforms()->modelview(), fw()->transforms()->projection());
 }
 
 void Rendering::addProperties() {
@@ -42,9 +42,9 @@ void Rendering::addProperties() {
 }
 
 void Rendering::colorize() {
-	m_vectors->annotate({0, 1}, "xAxis")->colorize(m_colX);
-	m_vectors->annotate({2, 3}, "yAxis")->colorize(m_colY);
-	m_vectors->annotate({4, 5}, "zAxis")->colorize(m_colZ);
+	m_lines->annotate({0, 1}, "xAxis")->colorize(m_colX);
+	m_lines->annotate({2, 3}, "yAxis")->colorize(m_colY);
+	m_lines->annotate({4, 5}, "zAxis")->colorize(m_colZ);
 }
 
 Rendering::Factory::Factory() : FW::Factory() {

@@ -3,7 +3,7 @@
 
 #include <FW/Visualizer.h>
 #include <FW/Factory.h>
-#include <Library/Rendered/Vectors.h>
+#include <Library/Rendered/Lines.h>
 
 namespace FW {
 
@@ -22,7 +22,7 @@ class Rendering : public Visualizer {
 		void colorize();
 
 	protected:
-		Rendered::Vectors::Ptr m_vectors;
+		Rendered::Lines::Ptr m_lines;
 		Eigen::Vector4f m_colX;
 		Eigen::Vector4f m_colY;
 		Eigen::Vector4f m_colZ;
