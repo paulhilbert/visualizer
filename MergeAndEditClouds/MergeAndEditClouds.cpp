@@ -17,9 +17,10 @@ void MergeAndEditClouds::init() {
 	addModes();
 	registerEvents();
 
+	m_rendered = Rendered::Cloud::Ptr(new Rendered::Cloud(Eigen::Vector4f(0.4f, 0.4f, 0.4f, 1.f)));
+
 	setupSelection();
 
-	m_rendered = Rendered::Cloud::Ptr(new Rendered::Cloud(Eigen::Vector4f(0.4f, 0.4f, 0.4f, 1.f)));
 	addClouds(m_paths);
 	uploadCloud();
 }
@@ -118,11 +119,8 @@ void MergeAndEditClouds::setupSelection() {
 		if (fw()->modifier()->ctrl()) {
 			if (!m_selection.size()) return;
 			m_selection = Algorithm::setDifference(m_selection, selection);
-			//Algorithm::remove(m_selection, [&] (Idx idx) { return std::binary_search(selection.begin(), selection.end(), idx); });
 		} else if (fw()->modifier()->shift()) {
 			m_selection = Algorithm::setUnion(m_selection, selection);
-			//m_selection.insert(m_selection.end(), selection.begin(), selection.end());
-			//Algorithm::uniqueSubset(m_selection);
 		} else {
 			m_selection = selection;
 		}

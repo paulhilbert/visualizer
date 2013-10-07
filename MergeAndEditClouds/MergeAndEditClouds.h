@@ -44,14 +44,13 @@ class MergeAndEditClouds : public Visualizer {
 		void erase();
 
 	protected:
-		GUI::Property::Paths   m_paths;
-		Cloud::Ptr             m_cloud;
-		Rendered::Cloud::Ptr   m_rendered;
+		GUI::Property::Paths     m_paths;
+		Cloud::Ptr               m_cloud;
+		Rendered::Cloud::Ptr     m_rendered;
 
-		// selection
-		Input::AreaSelect::Ptr  m_areaSelect;
-		Input::PaintSelect::Ptr m_paintSelect;
-		IdxSet                 m_selection;
+		IdxSet                   m_selection;
+		Input::AreaSelect::Ptr   m_areaSelect;
+		Input::PaintSelect::Ptr  m_paintSelect;
 };
 
 
