@@ -14,6 +14,7 @@ typedef Tools::IdxSet    IdxSet;
 
 #include <Library/Rendered/Cloud.h>
 #include <Library/Input/AreaSelect.h>
+#include <Library/Input/PaintSelect.h>
 
 
 namespace FW {
@@ -30,7 +31,17 @@ class MergeAndEditClouds : public Visualizer {
 		void init();
 		void render();
 		void addProperties();
+		void addModes();
 		void registerEvents();
+
+	protected:
+		void addClouds(const GUI::Property::Paths& paths);
+		void exportCloud(const fs::path& path);
+		void uploadCloud();
+		void setupSelection();
+		void resetSelection();
+		void crop();
+		void erase();
 
 	protected:
 		GUI::Property::Paths   m_paths;
@@ -38,7 +49,8 @@ class MergeAndEditClouds : public Visualizer {
 		Rendered::Cloud::Ptr   m_rendered;
 
 		// selection
-		Input::AreaSelect::Ptr m_areaSelect;
+		Input::AreaSelect::Ptr  m_areaSelect;
+		Input::PaintSelect::Ptr m_paintSelect;
 		IdxSet                 m_selection;
 };
 
