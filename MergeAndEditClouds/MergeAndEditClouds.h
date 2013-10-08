@@ -42,6 +42,7 @@ class MergeAndEditClouds : public Visualizer {
 		void resetSelection();
 		void crop();
 		void erase();
+		void resample();
 
 	protected:
 		GUI::Property::Paths     m_paths;

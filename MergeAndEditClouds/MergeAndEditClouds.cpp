@@ -3,6 +3,7 @@
 #include <Vis/Colors.h>
 using namespace Vis::Colors;
 
+#include <pcl/keypoints/uniform_sampling.h>
 
 namespace FW {
 
@@ -40,13 +41,21 @@ void MergeAndEditClouds::addProperties() {
 	exportFile->setMode(File::SAVE);
 	exportFile->setCallback([&] (const fs::path& path) { exportCloud(path); });
 
-	auto groupEdit = gui()->properties()->add<Group>("Edit Selection", "groupEdit");
-	auto crop = groupEdit->add<Button>("Crop Selection", "crop");
+	auto groupEditSel = gui()->properties()->add<Group>("Edit Selection", "groupEditSel");
+	auto crop = groupEditSel->add<Button>("Crop Selection", "crop");
 	crop->setCallback(std::bind(&MergeAndEditClouds::crop, this));
 	crop->disable();
-	auto erase = groupEdit->add<Button>("Erase Selection", "erase");
+	auto erase = groupEditSel->add<Button>("Erase Selection", "erase");
 	erase->setCallback(std::bind(&MergeAndEditClouds::erase, this));
 	erase->disable();
+
+	auto groupEdit = gui()->properties()->add<Group>("Edit Cloud", "groupEdit");
+	auto diamFactor = groupEdit->add<Number>("Diameter Factor", "diamFactor");
+	diamFactor->setMin(0.0001);
+	diamFactor->setMax(1.0000);
+	diamFactor->setValue(0.0016);
+	diamFactor->setDigits(4);
+	groupEdit->add<Button>("Resample")->setCallback([&] () { resample(); });
 }
 
 void MergeAndEditClouds::addModes() {
@@ -126,8 +135,8 @@ void MergeAndEditClouds::setupSelection() {
 		}
 		if (m_selection.size()) {
 			m_rendered->annotate(m_selection, "selection")->colorize(rgbaWhite());
-			gui()->properties()->get<Button>({"groupEdit", "crop"})->enable();
-			gui()->properties()->get<Button>({"groupEdit", "erase"})->enable();
+			gui()->properties()->get<Button>({"groupEditSel", "crop"})->enable();
+			gui()->properties()->get<Button>({"groupEditSel", "erase"})->enable();
 		}
 	});
 	m_areaSelect->setUnselectCallback(std::bind(&MergeAndEditClouds::resetSelection, this));
@@ -152,8 +161,8 @@ void MergeAndEditClouds::setupSelection() {
 		}
 		if (m_selection.size()) {
 			m_rendered->annotate(m_selection, "selection")->colorize(rgbaWhite());
-			gui()->properties()->get<Button>({"groupEdit", "crop"})->enable();
-			gui()->properties()->get<Button>({"groupEdit", "erase"})->enable();
+			gui()->properties()->get<Button>({"groupEditSel", "crop"})->enable();
+			gui()->properties()->get<Button>({"groupEditSel", "erase"})->enable();
 		}
 	});
 	m_paintSelect->setStopCallback([&] () {
@@ -173,8 +182,8 @@ void MergeAndEditClouds::setupSelection() {
 		}
 		if (m_selection.size()) {
 			m_rendered->annotate(m_selection, "selection")->colorize(rgbaWhite());
-			gui()->properties()->get<Button>({"groupEdit", "crop"})->enable();
-			gui()->properties()->get<Button>({"groupEdit", "erase"})->enable();
+			gui()->properties()->get<Button>({"groupEditSel", "crop"})->enable();
+			gui()->properties()->get<Button>({"groupEditSel", "erase"})->enable();
 		}
 	});
 	m_paintSelect->setUnselectCallback(std::bind(&MergeAndEditClouds::resetSelection, this));
@@ -184,8 +193,8 @@ void MergeAndEditClouds::setupSelection() {
 void MergeAndEditClouds::resetSelection() {
 	m_selection.clear();
 	if (m_rendered) m_rendered->clearAnnotations();
-	gui()->properties()->get<Button>({"groupEdit", "crop"})->disable();
-	gui()->properties()->get<Button>({"groupEdit", "erase"})->disable();
+	gui()->properties()->get<Button>({"groupEditSel", "crop"})->disable();
+	gui()->properties()->get<Button>({"groupEditSel", "erase"})->disable();
 }
 
 void MergeAndEditClouds::crop() {
@@ -205,6 +214,21 @@ void MergeAndEditClouds::erase() {
 	resetSelection();
 	m_cloud = newCloud;
 	m_rendered->setFromPCLCloud(m_cloud->begin(), m_cloud->end());
+}
+
+void MergeAndEditClouds::resample() {
+	auto diamFactor = gui()->properties()->get<Number>({"groupEdit", "diamFactor"})->value();
+	pcl::UniformSampling<Point> us;
+	us.setInputCloud(m_cloud);
+	us.setRadiusSearch(diamFactor * Tools::diameter(m_cloud));
+	pcl::PointCloud<int> subsampled_indices;
+	us.compute(subsampled_indices);
+	std::sort(subsampled_indices.points.begin (), subsampled_indices.points.end ());
+	Cloud::Ptr result(new Cloud());
+	pcl::copyPointCloud(*m_cloud, subsampled_indices.points, *result);
+	m_cloud = result;
+	uploadCloud();
+	gui()->log()->verbose("Resampled with diameter "+lexical_cast<std::string>(diamFactor)+".");
 }
 
 MergeAndEditClouds::Factory::Factory() : FW::Factory() {
