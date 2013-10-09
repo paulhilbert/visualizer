@@ -2,7 +2,7 @@
 
 namespace FW {
 
-Skeleton::Skeleton(std::string id) : Visualizer(id) {
+Skeleton::Skeleton(std::string id) : _CONSTRUCT_ {
 }
 
 Skeleton::~Skeleton() {

@@ -105,7 +105,7 @@ void MergeAndEditClouds::addClouds(const GUI::Property::Paths& paths) {
 }
 
 void MergeAndEditClouds::exportCloud(const fs::path& path) {
-	pcl::io::savePCDFileASCII(path.string(), *m_cloud);
+	pcl::io::savePCDFileBinary(path.string(), *m_cloud);
 	gui()->log()->info("Saved pointcloud to: \""+path.string()+"\"");
 }
 

@@ -6,7 +6,11 @@
 namespace FW {
 
 
-class Skeleton : public Visualizer {
+class Skeleton : _INHERIT_ {
+	public:
+		std::shared_ptr<Skeleton> Ptr;
+		std::weak_ptr<Skeleton>   WPtr;
+
 	public:
 		Skeleton(std::string id);
 		virtual ~Skeleton();
@@ -17,6 +21,7 @@ class Skeleton : public Visualizer {
 		void registerEvents();
 };
 
+#include "Skeleton.inl"
 
 } // FW
 

@@ -7,7 +7,11 @@
 namespace FW {
 
 
-class Skeleton : public Visualizer {
+class Skeleton : _INHERIT_ {
+	public:
+		typedef std::shared_ptr<Skeleton> Ptr;
+		typedef std::weak_ptr<Skeleton>   WPtr;
+
 	public:
 		class Factory;
 
