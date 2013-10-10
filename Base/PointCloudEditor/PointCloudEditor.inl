@@ -4,9 +4,9 @@ inline PointCloudEditor::PointCloudEditor(std::string id, const Paths& paths) : 
 inline PointCloudEditor::~PointCloudEditor() {
 }
 
-inline void PointCloudEditor::init(const RGBA& color) {
+inline void PointCloudEditor::init() {
 	SinglePointCloud::init();
-	SelectModes::init(color);
+	SelectModes::init();
 	addProperties();
 	registerEvents();
 }
@@ -27,6 +27,10 @@ inline void PointCloudEditor::addProperties() {
 }
 
 inline void PointCloudEditor::registerEvents() {
+	fw()->events()->connect<void (FW::Events::Keys::Special)>("SPECIAL_KEY_RELEASE", [&] (FW::Events::Keys::Special key) {
+		if (key == FW::Events::Keys::DEL) erase();
+		if (key == FW::Events::Keys::INSERT) crop();
+	});
 }
 
 inline bool PointCloudEditor::resetSelectionRender() {

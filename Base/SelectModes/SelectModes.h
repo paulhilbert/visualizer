@@ -24,7 +24,7 @@ class SelectModes : virtual public Visualizer {
 		SelectModes(std::string id, EntitiesPtr entities, Methods exclude = METHOD_NONE);
 		virtual ~SelectModes();
 
-		void init(const Eigen::Vector4f& color);
+		void init();
 		void render();
 		void addProperties();
 		void registerEvents();

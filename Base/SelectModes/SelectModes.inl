@@ -7,7 +7,7 @@ inline SelectModes<Entities, Entity>::~SelectModes() {
 }
 
 template <class Entities, class Entity>
-inline void SelectModes<Entities, Entity>::init(const Eigen::Vector4f& color) {
+inline void SelectModes<Entities, Entity>::init() {
 	addProperties();
 	registerEvents();
 	addModes();
@@ -36,11 +36,11 @@ inline void SelectModes<Entities, Entity>::init(const Eigen::Vector4f& color) {
 			if (m_selection.size()) updateSelectionRender(m_selection);
 		});
 		m_areaSelect->setUnselectCallback([&] () { resetSelection(); });
-		m_areaSelect->init(color);
+		m_areaSelect->init();
 	}
 
 	if (!(m_exclude & METHOD_PAINT)) {
-		m_paintSelect = Input::PaintSelect::Ptr(new Input::PaintSelect(fw(), 10));
+		m_paintSelect = Input::PaintSelect::Ptr(new Input::PaintSelect(fw()));
 		m_paintSelect->setStartCallback([&] () { 
 			if (!fw()->modifier()->shift() && !fw()->modifier()->ctrl()) {
 				resetSelection();
@@ -85,7 +85,7 @@ inline void SelectModes<Entities, Entity>::init(const Eigen::Vector4f& color) {
 			if (m_selection.size()) updateSelectionRender(m_selection);
 		});
 		m_paintSelect->setUnselectCallback([&] () { resetSelection(); });
-		m_paintSelect->init(color);
+		m_paintSelect->init();
 	}
 }
 
@@ -97,6 +97,28 @@ inline void SelectModes<Entities, Entity>::render() {
 
 template <class Entities, class Entity>
 inline void SelectModes<Entities, Entity>::addProperties() {
+	auto group = gui()->properties()->template add<Section>("Select", "selectGroup");
+	group->collapse();
+	auto color = group->template add<Color>("Color: ", "selectColor");
+	color->setValue(RGBA(0.f, 0.4f, 1.f, 0.4f));
+	color->setCallback([&] (const RGBA& color) {
+		if (!(m_exclude & METHOD_AREA)) {
+			m_areaSelect->setColor(color);
+		}
+		if (!(m_exclude & METHOD_PAINT)) {
+			m_paintSelect->setColor(color);
+		}
+	});
+	color->disable();
+	if (!(m_exclude & METHOD_PAINT)) {
+		auto radius = group->template add<Range>("Paint Radius: ", "selectRadius");
+		radius->setMin(1);
+		radius->setMax(100);
+		radius->setDigits(0);
+		radius->setValue(10);
+		radius->setCallback([&] (double r) { m_paintSelect->setRadius(static_cast<unsigned int>(r)); });
+		radius->disable();
+	}
 }
 
 template <class Entities, class Entity>
@@ -119,9 +141,19 @@ inline void SelectModes<Entities, Entity>::addModes() {
 			if (mode == "selArea")  m_areaSelect->disable();
 			if (mode == "selPaint") m_paintSelect->disable();
 		}
-		if (gui()->modes()->group("selection")->getCurrentOption() == "selArea")        m_activeMethod = METHOD_AREA;
-		else if (gui()->modes()->group("selection")->getCurrentOption() == "selPaint")  m_activeMethod = METHOD_PAINT;
-		else m_activeMethod = METHOD_NONE;
+		if (gui()->modes()->group("selection")->getCurrentOption() == "selArea") {
+			m_activeMethod = METHOD_AREA;
+			gui()->properties()->template get<Color>({"selectGroup", "selectColor"})->enable();
+			gui()->properties()->template get<Range>({"selectGroup", "selectRadius"})->disable();
+		} else if (gui()->modes()->group("selection")->getCurrentOption() == "selPaint") {
+			m_activeMethod = METHOD_PAINT;
+			gui()->properties()->template get<Color>({"selectGroup", "selectColor"})->enable();
+			gui()->properties()->template get<Range>({"selectGroup", "selectRadius"})->enable();
+		} else {
+			m_activeMethod = METHOD_NONE;
+			gui()->properties()->template get<Color>({"selectGroup", "selectColor"})->disable();
+			gui()->properties()->template get<Range>({"selectGroup", "selectRadius"})->disable();
+		}
 	});
 }
 
