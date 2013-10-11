@@ -1,6 +1,8 @@
 #ifndef SELECTMODESVIS_H_
 #define SELECTMODESVIS_H_
 
+#include <Algorithm/Sets.h>
+
 #include <FW/Visualizer.h>
 #include <Library/Input/AreaSelect.h>
 #include <Library/Input/PaintSelect.h>
@@ -21,7 +23,7 @@ class SelectModes : virtual public Visualizer {
 		} Methods;
 
 	public:
-		SelectModes(std::string id, EntitiesPtr entities, Methods exclude = METHOD_NONE);
+		SelectModes(std::string id, EntitiesPtr& entities, Methods exclude = METHOD_NONE);
 		virtual ~SelectModes();
 
 		void init(const Eigen::Vector4f& color);
@@ -37,7 +39,7 @@ class SelectModes : virtual public Visualizer {
 		virtual void updateSelectionRender(const IdxSet& selection) = 0;
 
 	protected:
-		EntitiesPtr              m_entities;
+		EntitiesPtr&             m_entities;
 
 		Methods                  m_exclude;
 		Methods                  m_activeMethod;
