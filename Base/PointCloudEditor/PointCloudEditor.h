@@ -22,7 +22,7 @@ class PointCloudEditor : public SinglePointCloud, public SelectModes<Cloud, Poin
 		PointCloudEditor(std::string id, const Paths& paths);
 		virtual ~PointCloudEditor();
 
-		void init(const RGBA& color);
+		void init();
 		void render();
 		void addProperties();
 		void registerEvents();
