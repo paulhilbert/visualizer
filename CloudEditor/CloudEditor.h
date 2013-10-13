@@ -3,7 +3,7 @@
 
 #include <FW/Visualizer.h>
 #include <FW/Factory.h>
-#include <PointCloudEditor/PointCloudEditor.h>
+#include <Library/Visualizer/PointCloudEditor/PointCloudEditor.h>
 
 namespace FW {
 
