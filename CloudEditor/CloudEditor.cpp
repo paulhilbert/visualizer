@@ -19,7 +19,6 @@ void CloudEditor::render() {
 }
 
 void CloudEditor::addProperties() {
-	gui()->properties()->add<Button>("Button", "button")->setCallback([&] () { gui()->log()->fail("Error just because..."); });
 }
 
 void CloudEditor::registerEvents() {
