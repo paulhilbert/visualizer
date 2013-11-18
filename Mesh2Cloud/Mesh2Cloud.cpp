@@ -15,6 +15,7 @@ Mesh2Cloud::Mesh2Cloud(std::string id, fs::path meshPath) : Visualizer(id), m_cl
 		gui()->log()->fail("Could not read mesh file");
 		return;
 	}
+	m_mesh.update_face_normals();
 }
 
 Mesh2Cloud::~Mesh2Cloud() {
