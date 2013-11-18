@@ -34,6 +34,9 @@ class MeshRender : public Visualizer {
 		std::shared_ptr<Mesh>      m_mesh;
 		Rendered::Mesh<Mesh>::Ptr  m_rm;
 		ShaderProgram::Ptr         m_program;
+		
+		bool                       m_clipping = false;
+		float                      m_clippingHeight = 0.f;
 };
 
 
