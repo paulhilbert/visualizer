@@ -1,32 +1,26 @@
 #include "Mesh2Cloud.h"
-#include <OpenMesh/Core/IO/MeshIO.hh>
-
-#include <Vis/Colors.h>
-using namespace Vis::Colors;
 
 namespace FW {
 
-Mesh2Cloud::Mesh2Cloud(std::string id, fs::path meshPath) : Visualizer(id), m_cloud(new Cloud()) {
-	m_mesh.request_vertex_status();
-	m_mesh.request_face_status();
-	m_mesh.request_vertex_normals();
-	m_mesh.request_face_normals();
-	if (!OpenMesh::IO::read_mesh(m_mesh, meshPath.string())) {
-		gui()->log()->fail("Could not read mesh file");
-		return;
-	}
-	m_mesh.update_face_normals();
+Mesh2Cloud::Mesh2Cloud(std::string id, fs::path meshPath) : Visualizer(id), SingleMesh(id, meshPath), m_cloud(new Cloud()) {
 }
 
 Mesh2Cloud::~Mesh2Cloud() {
 }
 
 void Mesh2Cloud::init() {
+	//m_mesh->request_vertex_status();
+	//m_mesh->request_face_status();
+	//m_mesh->request_vertex_normals();
+	//m_mesh->request_face_normals();
+	SingleMesh::init();
+	m_mesh->update_face_normals();
 	addProperties();
 	registerEvents();
 }
 
 void Mesh2Cloud::render() {
+	SingleMesh::render();
 	if (m_rc) m_rc->render(fw()->transforms()->modelview(), fw()->transforms()->projection());
 }
 
@@ -51,14 +45,15 @@ void Mesh2Cloud::registerEvents() {
 }
 
 void Mesh2Cloud::sample(int samplesPerSquareUnit) {
+	typedef MeshAnalysis<Traits> MA;
 	m_rc.reset();
 	execute(
 		[&] () { 
-			MA::sampleOnSurface<Point>(m_mesh, samplesPerSquareUnit, m_cloud);
+			MA::sampleOnSurface<Point>(*m_mesh, samplesPerSquareUnit, m_cloud);
 		}, 
 		[&] () { 
 			gui()->log()->info("Sampling finished. Sampled "+lexical_cast<std::string>(m_cloud->size())+" points.");
-			m_rc = Rendered::Cloud::Ptr(new Rendered::Cloud(rgbaWhite()));
+			m_rc = Rendered::Cloud::Ptr(new Rendered::Cloud(rgbaRed()));
 			m_rc->setFromPCLCloud(m_cloud->begin(), m_cloud->end());
 			gui()->properties()->get<File>({"outFile"})->enable();
 		}

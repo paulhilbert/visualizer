@@ -1,10 +1,8 @@
 #ifndef MESH2CLOUDVIS_H_
 #define MESH2CLOUDVIS_H_
 
-#include <FW/Visualizer.h>
-#include <FW/Factory.h>
-
-#include <IO/AbstractProgressBar.h>
+#include <FW/FWVisualizer.h>
+#include <FW/FWFactory.h>
 
 #include <Geometry/PCLTools.h>
 using Geometry::PCLTools;
@@ -14,24 +12,18 @@ typedef Tools::CloudType Cloud;
 typedef Tools::Idx       Idx;
 typedef Tools::IdxSet    IdxSet;
 
-#include <OpenMesh/Core/Mesh/PolyMesh_ArrayKernelT.hh>
-#include <Geometry/OpenMeshTraits.h>
-#include <Geometry/MeshAnalysis.h>
-typedef OpenMesh::PolyMesh_ArrayKernelT<> Mesh;
-using namespace Geometry;
-typedef OpenMeshTraits<Mesh> Traits;
-typedef MeshAnalysis<Traits> MA;
-
 #include <Library/Rendered/Cloud.h>
+
+#include <Library/Visualizer/SingleMesh/SingleMesh.h>
+#include <Library/Geometry/MeshAnalysis.h>
 
 
 namespace FW {
 
 
-class Mesh2Cloud : public Visualizer {
+class Mesh2Cloud : public SingleMesh {
 	public:
 		class Factory;
-		typedef IO::AbstractProgressBar PBar;
 
 	public:
 		Mesh2Cloud(std::string id, fs::path meshPath);
@@ -46,7 +38,6 @@ class Mesh2Cloud : public Visualizer {
 		void sample(int samplesPerSquareUnit);
 
 	protected:
-		Mesh                  m_mesh;
 		Cloud::Ptr            m_cloud;
 		Rendered::Cloud::Ptr  m_rc;
 };
