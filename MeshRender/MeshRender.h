@@ -4,12 +4,11 @@
 #include <FW/FWVisualizer.h>
 #include <FW/FWFactory.h>
 
-#include <Library/Geometry/OpenMeshTraits.h>
-#include <Library/Rendered/Mesh.h>
+#include <Library/Visualizer/SingleMesh/SingleMesh.h>
 
 namespace FW {
 
-class MeshRender : public Visualizer {
+class MeshRender : public SingleMesh {
 	public:
 		typedef std::shared_ptr<MeshRender> Ptr;
 		typedef std::weak_ptr<MeshRender>   WPtr;
@@ -28,15 +27,6 @@ class MeshRender : public Visualizer {
 		void render();
 		void addProperties();
 		void registerEvents();
-
-	protected:
-		fs::path                   m_meshFile;
-		std::shared_ptr<Mesh>      m_mesh;
-		Rendered::Mesh<Mesh>::Ptr  m_rm;
-		ShaderProgram::Ptr         m_program;
-		
-		bool                       m_clipping = false;
-		float                      m_clippingHeight = 0.f;
 };
 
 
