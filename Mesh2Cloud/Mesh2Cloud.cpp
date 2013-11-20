@@ -2,7 +2,7 @@
 
 namespace FW {
 
-Mesh2Cloud::Mesh2Cloud(std::string id, fs::path meshPath) : Visualizer(id), SingleMesh(id, meshPath), m_cloud(new Cloud()) {
+Mesh2Cloud::Mesh2Cloud(std::string id, fs::path meshPath) : Visualizer(id), SingleMesh(id, meshPath), MultiPointCloud(id, Paths()) {
 }
 
 Mesh2Cloud::~Mesh2Cloud() {
@@ -15,27 +15,32 @@ void Mesh2Cloud::init() {
 	//m_mesh->request_face_normals();
 	SingleMesh::init();
 	m_mesh->update_face_normals();
+	MultiPointCloud::init();
 	addProperties();
 	registerEvents();
 }
 
 void Mesh2Cloud::render() {
 	SingleMesh::render();
-	if (m_rc) m_rc->render(fw()->transforms()->modelview(), fw()->transforms()->projection());
+	MultiPointCloud::render();
 }
 
 void Mesh2Cloud::addProperties() {
-	auto samples = gui()->properties()->add<Number>("Samples Per Square Unit", "samples");
+	auto group = gui()->properties()->add<Section>("Sampling", "group");
+	
+	auto samples = group->add<Number>("Samples Per Square Unit", "samples");
 	samples->setDigits(0);
 	samples->setMin(1);
 	samples->setMax(100000);
 	samples->setValue(100);
-	gui()->properties()->add<Button>("Sample", "sample")->setCallback([&] () { auto ns = gui()->properties()->get<Number>({"samples"})->value(); sample(ns); });;
+	group->add<Button>("Sample", "sample")->setCallback([&] () { auto ns = gui()->properties()->get<Number>({"group", "samples"})->value(); sample(ns); });;
 
-	auto outFile = gui()->properties()->add<File>("Save to: ", "outFile");
+	auto iogroup = gui()->properties()->add<Section>("Input/Output", "iogroup");
+	
+	auto outFile = iogroup->add<File>("Save to: ", "outFile");
 	outFile->setMode(File::SAVE);
 	outFile->setCallback([&] (fs::path p) {
-		pcl::io::savePCDFileASCII(p.string(), *m_cloud);
+		pcl::io::savePCDFileBinary(p.string(), *m_cloud);
 		gui()->log()->info("Saved pointcloud to: \""+p.string()+"\"");
 	});
 	outFile->disable();
@@ -46,16 +51,15 @@ void Mesh2Cloud::registerEvents() {
 
 void Mesh2Cloud::sample(int samplesPerSquareUnit) {
 	typedef MeshAnalysis<Traits> MA;
-	m_rc.reset();
 	execute(
 		[&] () { 
 			MA::sampleOnSurface<Point>(*m_mesh, samplesPerSquareUnit, m_cloud);
 		}, 
 		[&] () { 
 			gui()->log()->info("Sampling finished. Sampled "+lexical_cast<std::string>(m_cloud->size())+" points.");
-			m_rc = Rendered::Cloud::Ptr(new Rendered::Cloud(rgbaRed()));
-			m_rc->setFromPCLCloud(m_cloud->begin(), m_cloud->end());
-			gui()->properties()->get<File>({"outFile"})->enable();
+			addCloud("Main Cloud", rgbaRed(), m_cloud);
+			addNormals("Main Cloud Normals", rgbaWhite(), m_cloud, false);
+			gui()->properties()->get<File>({"iogroup", "outFile"})->enable();
 		}
 	);
 	//MA::sampleOnSurface<Point>(m_mesh, samplesPerSquareUnit, m_cloud);

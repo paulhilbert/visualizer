@@ -15,13 +15,18 @@ typedef Tools::IdxSet    IdxSet;
 #include <Library/Rendered/Cloud.h>
 
 #include <Library/Visualizer/SingleMesh/SingleMesh.h>
+#include <Library/Visualizer/MultiPointCloud/MultiPointCloud.h>
 #include <Library/Geometry/MeshAnalysis.h>
 
 
 namespace FW {
 
 
-class Mesh2Cloud : public SingleMesh {
+class Mesh2Cloud : public SingleMesh, public MultiPointCloud {
+	public:
+		typedef std::shared_ptr<Mesh2Cloud> Ptr;
+		typedef std::weak_ptr<Mesh2Cloud>   WPtr;
+
 	public:
 		class Factory;
 
@@ -36,10 +41,6 @@ class Mesh2Cloud : public SingleMesh {
 
 	protected:
 		void sample(int samplesPerSquareUnit);
-
-	protected:
-		Cloud::Ptr            m_cloud;
-		Rendered::Cloud::Ptr  m_rc;
 };
 
 
